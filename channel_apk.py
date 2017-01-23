@@ -1,5 +1,10 @@
+#!/usr/bin/env python3.5
+# -*- coding: utf-8 -*-
+
 import re
 import os
+import shutil
+
 
 def getprofileinfo(profile_path):
     #签名信息
@@ -31,7 +36,7 @@ def getapk(curdir):
 
 
 def apkdecode(apkfile, inputfile):
-    command = "apktool.sh d -f " + apkfile + " -o " + inputfile
+    command = "apktool d -f " + apkfile + " -o " + inputfile
     os.system(command)
 
 
@@ -73,7 +78,7 @@ def replace_referrername(channel, manifest):
 
 
 def build_unsigned_apk(builddir, apkfile):
-    command = 'apktool.sh b ' + builddir + ' -o ' + apkfile
+    command = 'apktool b ' + builddir + ' -o ' + apkfile
     os.system(command)
     return builddir.join(apkfile)
 
@@ -86,8 +91,8 @@ def jarsigner(keystore_path, storepassword, signedapk, unsignedapk, alias):
 
 
 def manychannel_apk():
-    # curdir = os.getcwd()
-    curdir = '/Users/tuyc/Desktop/apktool/'
+    curdir = os.getcwd()
+    # curdir = '/Users/tuyc/Desktop/apktool/'
     (keystore_path, alias, storepassword) = getprofileinfo(os.path.join(curdir, 'local.properties'))
     builddir = os.path.join(curdir, 'build')
     if not os.path.exists(builddir):
@@ -120,6 +125,7 @@ def manychannel_apk():
         build_unsigned_apk(builddir, unsignedapk)
         signedapk = os.path.join(signeddir, channel + '.apk')
         jarsigner(keystore_path, storepassword, signedapk, unsignedapk, alias)
-
+    shutil.rmtree(builddir)
+    shutil.rmtree(unsigneddir)
 
 manychannel_apk()
